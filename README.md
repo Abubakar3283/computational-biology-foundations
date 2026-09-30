@@ -1,5 +1,3 @@
----
-
 ## 1. Operating System Architecture & Computing Foundations
 * **Layered System Model:** User -> Shell/GUI -> System Calls (API) -> Linux Kernel -> Hardware (CPU, RAM, Disk, Network).
 * **Kernel Responsibilities:** Process scheduling, virtual memory management, virtual filesystem (VFS), and hardware peripheral abstraction.
