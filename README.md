@@ -1,330 +1,258 @@
-# 🐧 Linux Fundamentals & High-Performance Computing (HPC) Guide
+# 💻 Linux, Shell & Scientific Computing Toolkit
 
-Welcome to the lab! This repository is a structured, practical, and hands-on guide designed for new graduate researchers to quickly master the Linux environment, command-line operations, shell scripting, and data processing.
+A foundational, hands-on engineering guide covering Linux system architecture, terminal navigation, text stream wrangling, environment management, scientific Python pipelines, and version control.
 
 ---
 
 ## 📑 Table of Contents
-1. [Computer Architecture & OS Layers](#1-computer-architecture--os-layers)
-2. [Anatomy of the Terminal Prompt](#2-anatomy-of-the-terminal-prompt)
-3. [Linux Filesystem Hierarchy (FHS)](#3-linux-filesystem-hierarchy-fhs)
-4. [Essential Navigation & File Operations](#4-essential-navigation--file-operations)
-5. [Data Processing & Text Wrangling (grep, sed, awk)](#5-data-processing--text-wrangling)
-6. [Process Control & Job Management](#6-process-control--job-management)
-7. [Archiving & Compression](#7-archiving--compression)
-8. [Best Practices for Research Computing](#8-best-practices-for-research-computing)
+1. [Operating System Architecture & Terminal Prompt](#1-operating-system-architecture--terminal-prompt)
+2. [Filesystem Hierarchy Standard (FHS) & Navigation](#2-filesystem-hierarchy-standard-fhs--navigation)
+3. [File Management & Core Utilities](#3-file-management--core-utilities)
+4. [Text Wrangling & Data Streaming (grep, sed, awk, tr)](#4-text-wrangling--data-streaming-grep-sed-awk-tr)
+5. [Process Lifecycle & Job Monitoring](#5-process-lifecycle--job-monitoring)
+6. [Terminal Multiplexing with Tmux](#6-terminal-multiplexing-with-tmux)
+7. [Archiving & Data Compression](#7-archiving--data-compression)
+8. [File Permissions & Shell Automation (.sh)](#8-file-permissions--shell-automation-sh)
+9. [Virtual Environments & Package Management (Conda)](#9-virtual-environments--package-management-conda)
+10. [Scientific Python & Tabular Data Processing](#10-scientific-python--tabular-data-processing)
+11. [Version Control with Git & GitHub](#11-version-control-with-git--github)
+12. [Terminal Coding Best Practices](#12-terminal-coding-best-practices)
 
 ---
 
-## 1. Computer Architecture & OS Layers
+## 1. Operating System Architecture & Terminal Prompt
 
-Understanding what happens under the hood when a command is executed:
-
+### System Architecture Layers
 ```text
-[ User ]
-   │
-   ▼
-[ Software Interface (CLI / GUI) ]
-   │
-   ▼
-[ System Calls / API Interface ]
-   │
-   ▼
-[ Operating System Kernel ]
-   │
-   ▼
-[ Hardware (CPU, RAM, Storage, Network) ]
-
-
-/ (System Root)
-├── bin/          # Essential system command binaries (ls, cp, bash)
-├── dev/          # Hardware device representations (disks, terminals)
-├── etc/          # System-wide configuration files (networking, apps)
-├── home/         # User personal workspaces (/home/username)
-├── mnt/          # Mount points for external drives (e.g., Windows C: drive in WSL)
-├── tmp/          # Temporary scratchpad files (cleared on reboot)
-└── usr/bin/      # User-installed applications (python3, git, gcc)
-
-whoami          # Prints current logged-in username
-uname -a        # Displays Linux kernel version and system architecture
-date            # Prints current system timestamp
-clear           # Clears the terminal screen
-
-pwd             # Print Working Directory (shows your exact location)
-cd ~            # Jump to user home directory
-cd ..           # Move one directory up (to parent)
-cd -            # Toggle back to the previous directory
-cd /            # Jump directly to the system root
-
-mkdir -p a/b/c  # Create nested directories in a single command
-touch file.txt  # Create an empty file or update timestamp
-ls -lh          # List files in detailed, human-readable format
-cp src.txt dst/ # Copy a file to target directory
-mv old.txt new/ # Move or rename a file
-rm -rf folder/  # Recursively delete a directory (use with caution!)
-
-cat << 'EOF' > script.sh
-echo "Automating tasks..."
-echo "Done!"
-EOF
-
-grep "ERROR" server.log             # Search and print matching lines
-grep -c "Taiwan" customers.csv      # Count occurrences of a keyword
-grep -E "pattern1|pattern2" log.txt # Extended regular expression matching
-
-grep "CRITICAL" app.log > errors.txt       # Overwrite
-grep "WARNING" app.log >> errors.txt       # Append
-cat data.csv | grep "Active" | wc -l       # Pipeline chaining
-
-# Substitute word in stream (e.g., replace Taiwan with TW)
-sed 's/Taiwan/TW/g' input.csv > output.csv
-
-# Convert comma-delimited (CSV) to tab-delimited (TSV)
-tr ',' '\t' < data.csv > data.tsv
-
-# Print column 2 and 4 from a tab-separated file
-awk -F'\t' '{print $2, $4}' data.tsv
-
-# Filter rows where column 3 is "TW" and calculate sum of column 5
-awk -F',' '$3 == "TW" {sum += $5} END {print "Total Spending: ", sum}' data.csv
-
-sleep 100 &     # Run a process in the background using '&'
-jobs            # List active background jobs in the current shell
-fg %1           # Bring background job 1 back to foreground
-bg %1           # Resume a paused job (Ctrl + Z) in the background
-top             # Interactive real-time process monitor (press 'q' to quit)
-watch -n 2 ls   # Monitor directory changes every 2 seconds
-
-# Create a Bzip2 compressed archive
-tar -cjvf project_backup.tar.bz2 project/
-
-# Create a Gzip compressed archive
-tar -czvf project_backup.tar.gz project/
-
-# Extract an archive
-tar -xvf project_backup.tar.bz2
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## 1. Operating System Architecture & Computing Foundations
-* **Layered System Model:** User -> Shell/GUI -> System Calls (API) -> Linux Kernel -> Hardware (CPU, RAM, Disk, Network).
-* **Kernel Responsibilities:** Process scheduling, virtual memory management, virtual filesystem (VFS), and hardware peripheral abstraction.
-* **Distributions vs. Vanilla Kernel:** Linus Torvalds kernel core vs. complete distributions (Ubuntu, Debian, Arch, Fedora) bundled with GNU coreutils, glibc, and package systems (apt).
-* **Shell Anatomy:** Interaction between terminal emulator, shell interpreter (Bash/Zsh), environment variables, and the prompt (user@host:pwd$).
-* **Inspection Commands:** whoami, uname -a, which, date, clear, history, man.
+[ User / Developer ]
+         │
+         ▼
+[ Command Line Interface (CLI) / Shell (Bash) ]
+         │
+         ▼
+[ System Calls (POSIX API) ]
+         │
+         ▼
+[ Linux Kernel (Process Scheduling, Memory, Hardware Access) ]
+         │
+         ▼
+[ Hardware (CPU, RAM, Disks, Network) ]
+
+(base) pumath3283@hostname:~/practice$ 
+  │        │          │        │      │
+  │        │          │        │      └─ Privilege: $ (Normal User), # (Root / Superuser)
+  │        │          │        └─ Current Directory (~ represents /home/username)
+  │        │          └─ Computer / Server Hostname
+  │        └─ Active Username
+  └─ Active Conda Environment
+
+
+
+# 💻 Linux, Shell & Scientific Computing Toolkit
+
+A foundational, hands-on engineering guide covering Linux system architecture, terminal navigation, text stream wrangling, environment management, scientific Python pipelines, and version control.
 
 ---
 
-## 2. Linux Filesystem Structure & Navigation
-* **Filesystem Hierarchy Standard (FHS):**
-  * / : Universal root directory.
-  * /bin, /usr/bin : Executable user binaries and system tools.
-  * /etc : System-wide daemon and service configurations.
-  * /home : User home environments and workspaces.
-  * /mnt : External mount points and WSL Windows drives (/mnt/c/).
-  * /tmp : Ephemeral/scratch storage.
-* **Path Traversal Syntax:**
-  * Absolute paths (/home/user/...) vs. Relative paths (./, ../).
-  * Shorthands: Current (.), Parent (..), Home (~), Previous (cd -).
-  * Nested directory tree generation: mkdir -p dir1/dir2/dir3.
+## 📑 Table of Contents
+1. [Operating System Architecture & Terminal Prompt](#1-operating-system-architecture--terminal-prompt)
+2. [Filesystem Hierarchy Standard (FHS) & Navigation](#2-filesystem-hierarchy-standard-fhs--navigation)
+3. [File Management & Core Utilities](#3-file-management--core-utilities)
+4. [Text Wrangling & Data Streaming (grep, sed, awk, tr)](#4-text-wrangling--data-streaming-grep-sed-awk-tr)
+5. [Process Lifecycle & Job Monitoring](#5-process-lifecycle--job-monitoring)
+6. [Terminal Multiplexing with Tmux](#6-terminal-multiplexing-with-tmux)
+7. [Archiving & Data Compression](#7-archiving--data-compression)
+8. [File Permissions & Shell Automation (.sh)](#8-file-permissions--shell-automation-sh)
+9. [Virtual Environments & Package Management (Conda)](#9-virtual-environments--package-management-conda)
+10. [Scientific Python & Tabular Data Processing](#10-scientific-python--tabular-data-processing)
+11. [Version Control with Git & GitHub](#11-version-control-with-git--github)
+12. [Terminal Coding Best Practices](#12-terminal-coding-best-practices)
 
 ---
 
-## 3. File Operations, Archiving & Compression
-* **File Management:** Creation and modification using touch, cp, mv, and recursive deletion rm -rf.
-* **Archiving vs. Compression Engines:**
-  * Archiving packs multi-file trees without size reduction (tar).
-  * Compression shrinks data streams (gzip, bzip2, zip).
-  * Standard archive builds: tar -czvf archive.tar.gz and tar -cjvf archive.tar.bz2.
-  * Streaming inspection without uncompressing: zcat file.gz | head.
-* **I/O Redirection & Heredoc Construction:**
-  * Standard output overwriting (>) vs. appending (>>).
-  * Multiline heredoc automation: cat << "EOF" > file.txt.
+## 1. Operating System Architecture & Terminal Prompt
+
+### System Architecture Layers
+- User / Developer: Human operator executing analytical pipelines.
+- CLI / Shell: Command interpreter translating user text instructions into system calls.
+- System Calls (POSIX API): Standard programmatic interface communicating with kernel space.
+- Linux Kernel: Operating system engine managing CPU scheduling, memory allocation, and hardware abstractions.
+- Hardware: Physical infrastructure (x86_64 CPU, RAM, NVMe/SSD, Network controllers).
+
+### Understanding the Terminal Prompt
+A standard interactive shell prompt displays contextual system identity:
+`pumath3283@hostname:~/practice$`
+
+- `pumath3283` : Current logged-in user account.
+- `@` : Connective delimiter meaning "at".
+- `hostname` : Network name of the computer or remote server node.
+- `:` : Separator between host identity and current directory location.
+- `~/practice` : Working directory path (`~` represents user home workspace `/home/pumath3283`).
+- `$` : Privilege marker indicating standard user privileges (`#` indicates administrative root access).
 
 ---
 
-## 4. Text Processing, Stream Wrangling & Regex
-* **Tabular Standards:** TSV (Tab-Separated Values) vs. CSV, and why TSV prevents delimiter collision during bioinformatics streaming pipelines.
-* **Stream Filtering & Regular Expressions:**
-  * Matching patterns and counting lines: grep -c "pattern" file.
-  * Extended Regular Expressions (grep -E) for alternation, domain extraction, and alphanumeric boundaries.
-* **Stream Transformation Utilities:**
-  * In-place token substitution: sed "s/old/new/g".
-  * Character translations and field conversions: tr "," "\\t".
-* **Column-Oriented Parsing & AWK Processing:**
-  * Extracting columns via cut -f 1,3 and computing unique line frequencies via sort | uniq -c | sort -nr.
-  * Field parsing with awk: Delimiters (-F"\\t"), condition logic ($3 == "gene"), and inline accumulator mathematics (sum += $5).
+## 2. Filesystem Hierarchy Standard (FHS) & Navigation
+
+Linux organizes all mounted storage devices under a single root directory (`/`):
+- `/` : Root of the entire filesystem hierarchy.
+- `/bin` & `/usr/bin` : Standard user executable command binaries (`ls`, `cp`, `python3`, `bash`).
+- `/etc` : System-wide daemon and application configuration files.
+- `/home` : Personal workspaces assigned to individual user accounts (`/home/username`).
+- `/mnt` : Mount points for external filesystems (including Windows drives on WSL e.g. `/mnt/c/`).
+- `/tmp` : Temporary scratch storage flushed on operating system reboot.
+
+### Directory Navigation Syntax
+- `pwd` : Print Working Directory (outputs current absolute path).
+- `cd /path/to/folder` : Change directory using an absolute or relative path.
+- `cd ~` or `cd` : Jump directly to user home directory (`$HOME`).
+- `cd ..` : Move one step upward to the immediate parent directory.
+- `cd -` : Toggle back to the previously active working directory.
 
 ---
 
-## 5. Process Lifecycle, System Monitoring & Terminal Multiplexing
-* **Process & Job Control:**
-  * Suspending processes with sleep or Ctrl + Z.
-  * Moving jobs between background (bg, &) and foreground (fg).
-  * Process monitoring: top, htop, and scheduled command polling with watch.
-* **Terminal Multiplexing with Tmux:**
-  * Decoupling long compute jobs from terminal sessions to prevent disconnections.
-  * Creating named sessions: tmux new -s <session_name>.
-  * Keybindings: Detaching (Ctrl+B, D), reattaching (tmux attach -t <name>), and listing (tmux ls).
+## 3. File Management & Core Utilities
+
+### Basic Identity & Diagnostic Inspection
+- `whoami` : Output currently authenticated user identity.
+- `uname -a` : Display Linux kernel build, release architecture, and system information.
+- `date` : Print formatted system clock and timezone timestamp.
+- `clear` : Flush visible terminal viewport buffer (shortcut: `Ctrl + L`).
+- `history` : Display numbered list of previously executed shell commands.
+
+### Creating, Moving, Copying & Deleting
+- `ls` : List contents of current directory.
+- `ls -lh` : List files in long format showing file size in human-readable units (K, M, G).
+- `mkdir folder_name` : Create a single directory.
+- `mkdir -p dir1/dir2/dir3` : Create nested directory trees without returning missing-parent errors.
+- `touch file.txt` : Create a zero-byte empty file or refresh existing file access timestamps.
+- `cp source.txt target/` : Copy a file to target directory.
+- `cp -r source_dir/ target_dir/` : Recursively copy directories and their contents.
+- `mv old_path.txt new_path.txt` : Move or rename files and directories.
+- `rm file.txt` : Permanently unlink/delete a file.
+- `rm -rf folder/` : Forcefully delete a directory tree recursively (irreversible operation).
+
+### Inspection & Text Reading
+- `cat file.txt` : Print entire file content to standard output.
+- `head -n 20 file.txt` : Output the top 20 lines of a file.
+- `tail -n 20 file.txt` : Output the final 20 lines of a file.
+- `less file.txt` : Interactive file viewer for large files (`q` to exit, `/` to search).
+- `wc -l file.txt` : Count total newline delimiters in a file.
 
 ---
 
-## 6. Permissions, Shell Scripting & Server Basics
-* **Linux Security Triad:** Read (r=4), Write (w=2), Execute (x=1) across User, Group, and Others.
-* **Executable Bits:** Enabling execution via chmod +x script.sh.
-* **Automated Bash Scripting:** Utilizing #!/bin/bash shebangs, parameters, conditional evaluation, and automated data cleaning loops.
-* **Server daemons:** Service state control via systemctl start|stop|status|restart.
+## 4. Text Wrangling & Data Streaming (grep, sed, awk, tr)
+
+Linux pipelines pass standard output (`stdout`) to standard input (`stdin`) using the pipe operator (`|`), allowing continuous processing without disk intermediate saves.
+
+### Stream Filtering with `grep`
+- `grep "pattern" data.tsv` : Extract rows matching exact string or regex pattern.
+- `grep -i "pattern" data.tsv` : Perform case-insensitive search.
+- `grep -v "pattern" data.tsv` : Invert filter to return lines that do not match.
+- `grep -c "pattern" data.tsv` : Count total occurrences of matching lines.
+- `grep -E "pattern1|pattern2" data.tsv` : Extended regex search for alternative patterns.
+
+### Standard I/O Redirection
+- `>` : Overwrite command stdout into a file (`command > file.txt`).
+- `>>` : Append command stdout to the end of a file (`command >> file.txt`).
+- `|` : Chain output of preceding command directly as input into the following command.
+
+### Stream Editing with `sed` & `tr`
+- `sed 's/old_value/new_value/g' file.txt > updated.txt` : Replace string occurrences across lines.
+- `tr ',' '\t' < input.csv > output.tsv` : Fast stream translation converting CSV to tab-separated TSV.
+
+### Column-Oriented Processing with `awk`
+- `awk -F'\t' '{print $1, $3}' data.tsv` : Extract and print designated columns.
+- `awk -F',' '$3 >= 100 {print $1, $3}' table.csv` : Conditional evaluation on numeric fields.
+- `awk '{sum += $2} END {print "Total Sum: ", sum}' data.txt` : Accumulator operations across rows.
 
 ---
 
-## 7. Python & Scientific Environment Management (Conda)
-* **Isolated Environment Architecture:** Preventing package version collisions and dependency rot across bioinformatics libraries.
-* **Conda Lifecycle:**
-  * Creating environments: conda create -n bio_project python=3.10.
-  * Activation & Deactivation: conda activate bio_project / conda deactivate.
-  * Inspecting binary paths: which python and conda list.
-* **Scripted Data Pipelines:** Reading multi-gigabyte coordinate files line-by-line, dictionary lookups, and building lookup tables without RAM overload.
+## 5. Process Lifecycle & Job Monitoring
+
+### Job Control
+- `command &` : Execute command directly in the background.
+- `Ctrl + Z` : Suspend currently running foreground task.
+- `jobs -l` : List background tasks running in current shell session with PIDs.
+- `bg %1` : Resume suspended task #1 in the background.
+- `fg %1` : Bring background job #1 back into foreground interactive mode.
+- `kill -9 <PID>` : Send SIGKILL signal to forcefully terminate process ID.
+
+### Real-Time Monitoring
+- `top` : Interactive terminal task manager displaying memory, CPU, and process states (`q` to quit).
+- `watch -n 2 "ls -lh"` : Execute command repeatedly at 2-second intervals to track real-time changes.
 
 ---
 
-## 8. Version Control with Git & GitHub
-* **Local Operations:** Repository setup (git init), state verification (git status), staging (git add), and semantic commits (git commit -m "...").
-* **Remote Synchronization:** Linking remotes (git remote add origin), branch configuration (git branch -M main), and upstream pushing (git push -u origin main).
-* **Branch Conflict & Rebase Resolution:**
-  * Diagnosing non-fast-forward push rejections.
-  * Resolving merge conflicts resulting from simultaneous edits across web editors and local workstations.
-  * Managing rebase flows: git pull --rebase origin main, aborting via git rebase --abort, and synchronized updates.
+## 6. Terminal Multiplexing with Tmux
+
+Tmux maintains terminal sessions independently from network connections, preventing process interruption during connection loss.
+
+- `tmux new -s project_session` : Create a named tmux workspace.
+- `Ctrl + B`, release and press `D` : Detach from session cleanly while background computations continue.
+- `tmux ls` : List active sessions running on the machine.
+- `tmux attach -t project_session` : Reconnect to detached workspace.
+- `tmux kill-session -t project_session` : Destroy and close specified session.
 
 ---
 
-## 9. Modern AI-Assisted Tooling & Editor Integration
-* **Terminal Coding Agents (OpenCode):**
-  * Launching context-aware agent sessions (opencode) in the local repository tree.
-  * Prompting agents to parse file trees, apply targeted code patches, and close unclosed markdown blocks without copy-paste truncation.
-* **VS Code Workflow:** CLI invocation (code .) and syntax visualization to catch malformed code fences and unclosed backticks.
+## 7. Archiving & Data Compression
+
+Archiving aggregates files into a single bundle, while compression reduces physical byte size.
+
+- `tar -cvf archive.tar directory/` : Archive directory without compression.
+- `tar -czvf archive.tar.gz directory/` : Archive and compress using gzip engine.
+- `tar -cjvf archive.tar.bz2 directory/` : Archive and compress using bzip2 engine (higher compression ratio).
+- `tar -xvf archive.tar.gz` : Decompress and unbundle archive into working directory.
+- `zcat file.txt.gz | head -n 10` : Inspect gzip-compressed text files without unpacking to disk.
+- `zcat file.txt.gz | wc -l` : Count lines within compressed file streams.
 
 ---
 
-## 10. Computational Genomics & Coordinate Systems (Ensembl GFF3)
-* **GFF3 9-Column Specification:**
+## 8. File Permissions & Shell Automation (.sh)
 
-| Col | Field | Biological Interpretation |
-| :---: | :--- | :--- |
-| **1** | `seqid` | Chromosome or unplaced scaffold identifier (`1-19`, `X`, `Y`, `MT`, `GL...`) |
-| **2** | `source` | Annotation authority or pipeline (`ensembl_havana`) |
-| **3** | `type` | Sequence Ontology term (`gene`, `mRNA`, `CDS`, `exon`) |
-| **4** | `start` | 1-based start genomic base position |
-| **5** | `end` | Inclusive end genomic base position |
-| **6** | `score` | Alignment confidence score |
-| **7** | `strand` | Directionality of transcription (`+` forward, `-` reverse) |
-| **8** | `phase` | Codon reading frame offset for CDS (`0`, `1`, `2`) |
-| **9** | `attributes` | Semicolon-delimited ancestry metadata (`ID=...;Parent=...`) |
+### Linux Security Matrix
+Permissions are categorized into Owner (u), Group (g), and Others (o) across Read (`r=4`), Write (`w=2`), and Execute (`x=1`).
+- `chmod +x pipeline.sh` : Assign executable permission bit to a script.
+- `chmod 755 pipeline.sh` : Grant full permissions to owner; read and execute permissions to group and others.
 
-* **Hierarchical Central Dogma Representation:**
-  Gene (ID=gene:...) -> mRNA (Parent=gene:...) -> CDS / Exon (Parent=transcript:...)
-* **Exon vs. CDS Divergence:**
-  * **Exons:** Genomic regions retained in mature RNA (including non-coding 5 and 3 UTRs).
-  * **CDS:** Strictly protein-coding segments translated into amino acid chains.
-* **Alternative Splicing Ratio:** Mouse transcriptome reveals ~2.60 transcripts per protein-coding gene locus.
-* **Chromosomal Diversity:** 22 canonical chromosomes vs. unplaced assembly scaffolds (GL..., JH...).
+### Defensive Shell Scripting Architecture
+Scripts must enforce predictable execution parameters:
+- `#!/bin/bash` : Shebang specifying the Bash interpreter.
+- `set -e` : Immediately terminate execution if any command yields a non-zero exit code.
+- `set -u` : Treat uninitialized variables as syntax errors.
+- `set -o pipefail` : Propagate pipeline exit codes correctly from failing sub-commands.
 
 ---
 
-## 11. Interactome Biology & Probabilistic Network Modeling (STRING)
-* **Biological Context of PPI:** Proteins function within macromolecular machines, multimeric complexes, and metabolic cascades.
-* **Pairwise Data Graph:** STRING strictly represents pairwise relations (A <-> B). Complex multiprotein assemblies decompose into sets of pairwise edges.
-* **The 7 Biological Evidence Channels:**
-  * Experiments, Databases, Text-mining, Co-expression, Neighborhood, Gene Fusion, and Co-occurrence.
-* **Probabilistic Scoring Model:**
-  Combining independent channel error probabilities (1 - S_i):
-  * S_combined = 1 - product(1 - S_i)
-  * Final_Score = round(S_combined * 1000)
-* **Confidence Tiers:** Low (>= 150), Medium (>= 400), High (>= 700), and Highest Confidence (>= 900).
+## 9. Virtual Environments & Package Management (Conda)
+
+Package management isolates software binaries and libraries, preventing version collisions.
+
+### Channel Priorities
+Configuring channels in `.condarc`:
+- `conda config --add channels conda-forge`
+- `conda config --add channels bioconda`
+- `conda config --set channel_priority strict`
+
+### Environment Lifecycle Operations
+- `conda create -n dev_env python=3.10 -y` : Create a standalone environment pinned to Python 3.10.
+- `conda activate dev_env` : Enter target environment.
+- `conda deactivate` : Exit active environment back to base system.
+- `conda list` : Display installed software packages and build versions.
+- `conda install -y package_name` : Install a package into currently active environment.
+- `conda env remove -n dev_env` : Completely purge an environment and its local dependencies.
 
 ---
 
-## 12. Technical Writing & Markdown Engineering
-* Constructing executive-grade documentation with dashboard status tables, LaTeX mathematical expressions, and systematic schemas.
-* Eliminating broken terminal buffer truncations and ensuring strict compliance with open/close backtick markers.
-"""
+## 10. Scientific Python & Tabular Data Processing
 
-with open("README.md", "w", encoding="utf-8") as f:
-    f.write(content)
-print("SUCCESS: README.md created cleanly with all 12 modules!")
-'
+### Chunk-Based Stream Parsing
+Loading massive files into memory causes system memory exhaustion. Processing files via chunks ensures bounded memory usage:
+```python
+import pandas as pd
+
+def stream_tabular_dataset(filepath, chunk_size=50000):
+    for chunk in pd.read_csv(filepath, sep='\t', chunksize=chunk_size):
+        filtered_records = chunk[chunk['score'] >= 100]
+        # Perform downstream vectorized processing
