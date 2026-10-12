@@ -1,3 +1,187 @@
+# 🐧 Linux Fundamentals & High-Performance Computing (HPC) Guide
+
+Welcome to the lab! This repository is a structured, practical, and hands-on guide designed for new graduate researchers to quickly master the Linux environment, command-line operations, shell scripting, and data processing.
+
+---
+
+## 📑 Table of Contents
+1. [Computer Architecture & OS Layers](#1-computer-architecture--os-layers)
+2. [Anatomy of the Terminal Prompt](#2-anatomy-of-the-terminal-prompt)
+3. [Linux Filesystem Hierarchy (FHS)](#3-linux-filesystem-hierarchy-fhs)
+4. [Essential Navigation & File Operations](#4-essential-navigation--file-operations)
+5. [Data Processing & Text Wrangling (grep, sed, awk)](#5-data-processing--text-wrangling)
+6. [Process Control & Job Management](#6-process-control--job-management)
+7. [Archiving & Compression](#7-archiving--compression)
+8. [Best Practices for Research Computing](#8-best-practices-for-research-computing)
+
+---
+
+## 1. Computer Architecture & OS Layers
+
+Understanding what happens under the hood when a command is executed:
+
+```text
+[ User ]
+   │
+   ▼
+[ Software Interface (CLI / GUI) ]
+   │
+   ▼
+[ System Calls / API Interface ]
+   │
+   ▼
+[ Operating System Kernel ]
+   │
+   ▼
+[ Hardware (CPU, RAM, Storage, Network) ]
+
+
+/ (System Root)
+├── bin/          # Essential system command binaries (ls, cp, bash)
+├── dev/          # Hardware device representations (disks, terminals)
+├── etc/          # System-wide configuration files (networking, apps)
+├── home/         # User personal workspaces (/home/username)
+├── mnt/          # Mount points for external drives (e.g., Windows C: drive in WSL)
+├── tmp/          # Temporary scratchpad files (cleared on reboot)
+└── usr/bin/      # User-installed applications (python3, git, gcc)
+
+whoami          # Prints current logged-in username
+uname -a        # Displays Linux kernel version and system architecture
+date            # Prints current system timestamp
+clear           # Clears the terminal screen
+
+pwd             # Print Working Directory (shows your exact location)
+cd ~            # Jump to user home directory
+cd ..           # Move one directory up (to parent)
+cd -            # Toggle back to the previous directory
+cd /            # Jump directly to the system root
+
+mkdir -p a/b/c  # Create nested directories in a single command
+touch file.txt  # Create an empty file or update timestamp
+ls -lh          # List files in detailed, human-readable format
+cp src.txt dst/ # Copy a file to target directory
+mv old.txt new/ # Move or rename a file
+rm -rf folder/  # Recursively delete a directory (use with caution!)
+
+cat << 'EOF' > script.sh
+echo "Automating tasks..."
+echo "Done!"
+EOF
+
+grep "ERROR" server.log             # Search and print matching lines
+grep -c "Taiwan" customers.csv      # Count occurrences of a keyword
+grep -E "pattern1|pattern2" log.txt # Extended regular expression matching
+
+grep "CRITICAL" app.log > errors.txt       # Overwrite
+grep "WARNING" app.log >> errors.txt       # Append
+cat data.csv | grep "Active" | wc -l       # Pipeline chaining
+
+# Substitute word in stream (e.g., replace Taiwan with TW)
+sed 's/Taiwan/TW/g' input.csv > output.csv
+
+# Convert comma-delimited (CSV) to tab-delimited (TSV)
+tr ',' '\t' < data.csv > data.tsv
+
+# Print column 2 and 4 from a tab-separated file
+awk -F'\t' '{print $2, $4}' data.tsv
+
+# Filter rows where column 3 is "TW" and calculate sum of column 5
+awk -F',' '$3 == "TW" {sum += $5} END {print "Total Spending: ", sum}' data.csv
+
+sleep 100 &     # Run a process in the background using '&'
+jobs            # List active background jobs in the current shell
+fg %1           # Bring background job 1 back to foreground
+bg %1           # Resume a paused job (Ctrl + Z) in the background
+top             # Interactive real-time process monitor (press 'q' to quit)
+watch -n 2 ls   # Monitor directory changes every 2 seconds
+
+# Create a Bzip2 compressed archive
+tar -cjvf project_backup.tar.bz2 project/
+
+# Create a Gzip compressed archive
+tar -czvf project_backup.tar.gz project/
+
+# Extract an archive
+tar -xvf project_backup.tar.bz2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## 1. Operating System Architecture & Computing Foundations
 * **Layered System Model:** User -> Shell/GUI -> System Calls (API) -> Linux Kernel -> Hardware (CPU, RAM, Disk, Network).
 * **Kernel Responsibilities:** Process scheduling, virtual memory management, virtual filesystem (VFS), and hardware peripheral abstraction.
