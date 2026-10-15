@@ -467,7 +467,7 @@ Built as a personal engineering reference for mastering the Linux terminal, scie
 ---
 
 
-# 1🗘 Comprehensive Lab Onboarding & Data Dictionary (for Mai)
+# 1🗘 Comprehensive Lab Onboarding & Data Dictionary
 
 Welcome Mai and the research team! This guide provides a complete overview of all project files, download links, and bioinformatics pipelines.
 
@@ -486,7 +486,7 @@ Welcome Mai and the research team! This guide provides a complete overview of al
 
 ---
 
-## 🔥 Automatic Data Download Commands for Mai
+## 🔥 Automatic Data Download Commands
 
 Mai can download all original lab datasets directly using these shell commands:
 
