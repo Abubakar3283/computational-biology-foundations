@@ -462,3 +462,74 @@ Built as a personal engineering reference for mastering the Linux terminal, scie
 ![Maintained](https://img.shields.io/badge/Maintained-Yes-green.svg)
 
 </div>
+
+
+---
+
+
+# 1🗘 Comprehensive Lab Onboarding & Data Dictionary (for Mai)
+
+Welcome Mai and the research team! This guide provides a complete overview of all project files, download links, and bioinformatics pipelines.
+
+---
+
+## 📂 Master Data Registry & Original Download URL3
+
+| File Name / Path | Original Source / Download URL | Core Contents | Project Utility & Role |
+|:--- |:--- |:--- |:--- |
+| `data/genes.gff3.gz` | [Ensembl GRCm39 Release 112](https://ftp.ensembl.org/pub/release-112/gff3/mus_musculus/Mus_musculus.GRCm39.112.chr.gff3.gz) | Chromosomal genomic features, exons, and CDS (plus ENSMUST & ENSMUSP ids) | **The Central Dogma Bridge:** Provides CDS coordinates to map transcripts to proteins. |
+| `data/cdna.fa.gz` | [Ensembl Mouse cDNA FASTA](https://ftp.ensembl.org/pub/release-112/fasta/mus_musculus/cdna/Mus_musculus.GRCm39.cdna.all.fa.gz) | Full mouse cDNA nucleotide sequences (~149.5k transcripts) | **BLASTN Input:** Used to build local BLAST database and run self-alignments. |
+| `data/protein.links.v12.0.txt.gz` | [STRING Database v12.0](https://stringdb-downloads.org/download/protein.links.v12.0/10090.protein.links.v12.0.txt.gz) | Curated protein-protein functional interactions with combined confidence scores | **Functional PPI Layer:** Evaluates which proteins interact in cellular pathways. |
+| `results/cdna_blastn_self_results.tsv` | *Generated locally via NCBI BLAST+* | 12-column tabular output (920,650 raw transcript alignments) | **Raw Sequence Homology:** Nucleotide-level sequence similarity before translation. |
+| `data/transcript_to_protein.tsv` | *Parsed from genes.gff3* | Two-column lookup table (66,789 unique ENSMUST => ENSMUSP pairs) | **Fast Lookup Table:** Memory-efficient translation dictionary. |
+| `results/protein_blastn_translated.tsv` | *Generated via translation pipeline* | Clean protein-pairs (385,773 records) after filtering non-coding elements | **Final Integrated Output:** Ready for data fusion with STRING PPI network. |
+
+---
+
+## 🔥 Automatic Data Download Commands for Mai
+
+Mai can download all original lab datasets directly using these shell commands:
+
+```bash
+# make folders
+mkdir -p data results scripts
+
+# 1. Ensembl GFF3 annotations
+wget -c https://ftp.ensembl.org/pub/release-112/gff3/mus_musculus/Mus_musculus.GRCm39.112.chr.gff3.gz -O data/genes.gff3.gz
+
+# 2. Ensembl cDNA FASTA All sequences
+wget -c https://ftp.ensembl.org/pub/release-112/fasta/mus_musculus/cdna/Mus_musculus.GRCm39.cdna.all.fa.gz -O data/cdna.fa.gz
+
+# 3. STRING v12.0 PPI Network (Mouse 10090)
+wget -c https://stringdb-downloads.org/download/protein.links.v12.0/10090.protein.links.v12.0.txt.gz -O data/protein.links.v12.0.txt.gz
+
+# 4. Unpack all packages
+hunzip -k data/*.gz
+```
+
+---
+
+## 🔐 End-to-End Biological Pipeline Flow
+
+```text
+       Ensembl cDNA (cdna.fa)                 Ensembl Annotations (genes.gff3)
+                   │                                       │
+                   ▼ (BLASTN)                              ▼ (awk parsing)
+      Raw Transcript Alignments (920,,650)      Lookup Table (transcript_to_protein.tsv)
+      [results/cdna_blastn_self_results.tsv]                       │
+                   ‸                                      │
+                   └─────────────────┘─────┘
+                                          │
+                                           ▼ (scripts/translate_blastn_to_protein.py)
+                                   Translated Protein Homology
+                                [results/protein_blastn_translated.tsv]
+                                          │  (385,773 pairs)
+                                          ▼
+                                Downstream Fusion with STRING PPI Network
+```
+
+---
+
+## 🔄 Published Lab Task Reports
+- [💰 Task 109: Translation & Collision Audit (Ready)](Task_109_blastn_protein_translation.md)
+- [🔥 Task 107-108: BLASTN Self-Alignment Analysis](Task_107_108_blastn_self_analysis.md)
